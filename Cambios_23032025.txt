@@ -1,0 +1,28 @@
+1. modificacion de tabla listadovotantes, se agrega campo sublidere_id
+2. creacion de tabla sublideres.
+3. lidere controller
+4. modificacion de plantilla votantes.xlsx
+5. creacion de la tabla ipreportes = se crea su controlador y su modelo
+
+
+
+Pendiente probar creacion de lideres y sublideres.
+
+color: #C60000;
+
+cambios
+
+tabla coordinadores
+se eliminan los campos correo y empleado
+se agrega campo profesione_id
+
+tabla lideres-listadovotantes
+se eliminan los campos correo y empleado
+
+
+***************************
+Ingeniero entonces para tener en cuenta: 
+el tema de la plantilla de excel ->OK
+el dato adicional de fecha de nacimiento de todos los registrados, -OK
+el dashboard de Córdoba y sus municipios ->ok
+y lo de las mesas para jurados y testigos.->PENDIENTE

@@ -1,0 +1,41 @@
+{
+  "name": "elec-congreso-2026",
+  "version": "1.0.0",
+  "description": "Aplicacion administrativa para manejo de campañas politicas elecciones congreso 2026.",
+  "main": "src/main.js",
+  "homepage": "",
+  "repository": "",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "build": "vue-cli-service build",
+    "dev": "npm run serve"
+  },
+  "dependencies": {
+    "ant-design-vue": "1.7.6",
+    "axios": "^1.1.3",
+    "bootstrap": "^5.3.2",
+    "bootstrap-vue": "^2.15.0",
+    "chart.js": "3.4.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "core-js": "3.15.2",
+    "install": "^0.13.0",
+    "npm": "^10.2.1",
+    "popper.js": "^1.12",
+    "sweetalert2": "^11.7.1",
+    "vue": "2.6.14",
+    "vue-github-buttons": "^3.1.0",
+    "vue-router": "3.5.2",
+    "vue-search-select": "^2.9.1",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-router": "4.5.13",
+    "@vue/cli-service": "4.5.13",
+    "sass": "^1.83.1",
+    "sass-loader": "^10",
+    "vue-template-compiler": "2.6.14"
+  }
+}
