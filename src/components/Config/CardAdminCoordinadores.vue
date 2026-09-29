@@ -1,12 +1,12 @@
 <template>    
-    <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+    <a-card :bordered="false" class="header-solid h-full personal-admin" :bodyStyle="{padding: 0,}">
         <template #title>
             <GestionCoordinadores ref="gestionCoordinadores"></GestionCoordinadores>
             <div v-if="loader">
                 <Loading />
             </div>
             <div v-else>
-                <div class="d-flex justify-content-between my-2">
+                <div class="personal-cabecera">
                     <div>
                         <h3>Gestión de coordinadores</h3>
                     </div>
@@ -23,7 +23,7 @@
                 </div>
                 
                 <!-- Campo de búsqueda -->
-                <div class="row mb-3">
+                <div class="row personal-busqueda">
                     <div class="col-md-6">
                         <div class="search-container">
                             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -399,3 +399,5 @@
         font-size: 1.1rem;
     }
 </style>
+
+<style scoped src="../../assets/styles/personal-admin.css"></style>

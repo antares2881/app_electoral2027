@@ -1,29 +1,31 @@
 <template>
-	<a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+	<a-card :bordered="false" class="header-solid h-full votantes-puesto" :bodyStyle="{padding: 0,}">
 		<template #title>			
-			<div class="row">
-				<div class="col-md-12">
-					<h5>Filtrar x </h5>
+			<div class="caja-filtros">
+				<div class="titulo-filtros">
+					<h5>Filtrar militantes</h5>
 				</div>
-				<div class="col-md-4">
-					<b-form-select id="tipo" v-model="votantes.tipo" :options="options" @change="setArray">
+				<div class="campo-filtro">
+                    <label for="tipo-filtro-votantes">Tipo de filtro</label>
+					<b-form-select class="control-filtro" id="tipo-filtro-votantes" v-model="votantes.tipo" :options="options" @change="setArray">
 						<template #first>
 							<b-form-select-option :value="null" disabled>-- Seleccione el filtro --</b-form-select-option>
 						</template>
 					</b-form-select>
 					
 				</div>
-				<div class="col-md-4">
-					<select name="" id="tipo" v-model="votantes.opcion" class="form-control">
+				<div class="campo-filtro">
+                    <label for="opcion-filtro-votantes">Opción</label>
+					<select id="opcion-filtro-votantes" v-model="votantes.opcion" class="form-control control-filtro">
 						<option v-for="(item, index) in arrayOpt" :key="index" :value="item.id">{{item.text}}</option>
 					</select>
 				</div>
-				<div class="col-md-4">
-					<button class="btn btn-success" @click="verVotantes" :disabled="cargando">
+				<div class="accion-filtro">
+					<button class="btn btn-consultar" @click="verVotantes" :disabled="cargando">
 						<span v-if="cargando">
 							<i class="fas fa-spinner fa-spin"></i> Cargando...
 						</span>
-						<span v-else>Ver</span>
+						<span v-else>Ver militantes</span>
 					</button>
 				</div>
 			</div>
@@ -160,6 +162,31 @@
 	}
 </script>
 <style scoped>
+    .caja-filtros {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+        align-items: end;
+        gap: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 12px;
+        white-space: normal;
+    }
+    .titulo-filtros { grid-column: 1 / -1; border-bottom: 1px solid #d8e0dc; padding-bottom: 0.875rem; }
+    .titulo-filtros h5 { margin: 0; color: #198754; font-size: 1.1rem; font-weight: 700; }
+    .campo-filtro { min-width: 0; }
+    .campo-filtro label { display: block; margin: 0 0 0.4rem; color: #475569; font-size: 0.875rem; font-weight: 600; line-height: 1.4; }
+    .campo-filtro .control-filtro { display: block; width: 100%; height: 44px; padding: 0.5rem 2rem 0.5rem 0.75rem; background-color: #fff; border: 1px solid #d8e0dc; border-radius: 8px; font-size: 0.95rem; color: #334155; }
+    .campo-filtro .control-filtro:focus { border-color: #198754; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12); outline: none; }
+    .btn-consultar { width: 100%; min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; background: #198754; border: 1px solid #198754; color: #fff; }
+    .btn-consultar:hover { background: #146c43; border-color: #146c43; color: #fff; }
+    .btn-consultar:focus-visible { outline: 3px solid rgba(25, 135, 84, 0.35); outline-offset: 2px; }
+    @media (max-width: 767px) {
+        .caja-filtros { grid-template-columns: minmax(0, 1fr); padding: 1rem; }
+    }
+
 	.loader-container {
 		display: flex;
 		align-items: center;
@@ -168,7 +195,7 @@
 		padding: 40px;
 	}
 
-	.btn-success:disabled {
+	.btn-consultar:disabled {
 		opacity: 0.7;
 		cursor: not-allowed;
 	}

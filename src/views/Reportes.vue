@@ -1,10 +1,5 @@
 <template>
     <div>
-        <!-- <button class="btn btn-primary mr-2" @click="option=1"><b-icon icon="bar-chart"></b-icon> General de votantes</button> -->
-        <!-- <button class="btn btn-primary mr-2" @click="option=2"><b-icon icon="pie-chart"></b-icon>x lideres</button> -->
-        <button class="btn btn-danger mr-2 col-md-3 col-12 my-2" @click="option=4" ><b-icon icon="people-fill"></b-icon> Militantes repetidos</button>
-        <button class="btn btn-dark mr-2 col-md-3 col-12 my-2" @click="option=3"><b-icon icon="person-lines-fill"></b-icon> Militantes ingresados</button>
-        <button class="btn btn-success mr-2 col-md-3 col-12 my-2" @click="option=5" v-if="$store.state.user.role_id !== 5 && $store.state.user.role_id !== 6 "><b-icon icon="bar-chart"></b-icon> Estadisticas x Usuarios</button>
         <div class="row">
             <div class="col-md-12">
                 <!-- <CardReporteVotante v-if="option === 1"></CardReporteVotante> -->
@@ -28,13 +23,14 @@
             CardVotantesRepetidos,
             CardReportexUsuariosVue
         },
-        data() {
-            return {
-                option: 0
+        computed: {
+            option() {
+                const puedeVerEstadisticas = ![5, 6].includes(this.$store.state.user.role_id);
+                const opcion = this.$route.query.opcion;
+                if (opcion === 'repetidos') return 4;
+                if (opcion === 'ingresados') return 3;
+                return puedeVerEstadisticas ? 5 : 3;
             }
-        },
-        methods: {
-            
         },
     }
 </script>

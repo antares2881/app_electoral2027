@@ -1,13 +1,35 @@
 <template>
     <div class="general-wrapper">
         <div class="card-header">
-            <h3 class="titulo-municipio">{{ nombreMunicipio }}</h3>
+            <h3 class="titulo-municipio">{{ titulo || nombreMunicipio }}</h3>
         </div>
         
         <div class="contenido">
             <!-- Tabla o visualización general de comunas con votantes -->
             <div v-if="data && data.length > 0" class="tabla-comunas">
-                <h5 class="mb-3">Militantes Registrados</h5>
+                <section v-if="totalGrafico > 0" class="resumen-puestos" aria-labelledby="titulo-peso-puestos">
+                    <div class="encabezado-grafico">
+                        <h5 id="titulo-peso-puestos">Peso de los primeros {{ primerosPuestos.length }} puestos</h5>
+                        <label class="selector-puestos">
+                            Mostrar
+                            <select v-model.number="cantidadPuestos" class="form-select form-select-sm">
+                                <option v-for="cantidad in opcionesCantidad" :key="cantidad" :value="cantidad">{{ cantidad }} puestos</option>
+                            </select>
+                        </label>
+                    </div>
+                    <p class="escala-grafico">Porcentaje del total de votantes del municipio · Escala de 0 a 100 %</p>
+                    <ol class="barras-puestos">
+                        <li v-for="(puesto, index) in primerosPuestos" :key="index">
+                            <span class="nombre-puesto">{{ index + 1 }}. {{ puesto.nombre_puesto || 'Puesto sin nombre' }}</span>
+                            <div class="pista-barra" aria-hidden="true">
+                                <div class="barra-puesto" :style="{ width: porcentajePuesto(puesto) + '%' }"></div>
+                            </div>
+                            <strong>{{ formatearPorcentaje(porcentajePuesto(puesto)) }}</strong>
+                        </li>
+                    </ol>
+                    <p class="peso-total">Los primeros {{ primerosPuestos.length }} puestos suman el <strong>{{ formatearPorcentaje(pesoPrimeros) }}</strong> del total de votantes del municipio.</p>
+                </section>
+                <h5 class="mb-3">Militantes Registrados por Puesto</h5>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -18,7 +40,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="comuna in data" :key="comuna.comuna_id || comuna.id">
+                            <tr v-for="(comuna, index) in puestosOrdenados" :key="index">
                                 <td v-if="municipioId === 1">{{comuna.comuna}}</td>
                                 <td>{{comuna.nombre_puesto }}</td>
                                 <td>
@@ -62,6 +84,10 @@
 export default {
     name: 'MunicipiosGeneral',
     props: {
+        titulo: {
+            type: String,
+            default: ''
+        },
         municipioId: {
             type: [String, Number],
             required: true
@@ -78,6 +104,7 @@ export default {
     data() {
         return {
             nombreMunicipio: '',
+            cantidadPuestos: 5,
             municipios: {
                 '1': 'Montería',
                 '4': 'Ayapel',
@@ -116,11 +143,40 @@ export default {
         this.obtenerNombreMunicipio();
     },
     watch: {
+        opcionesCantidad(opciones) {
+            if (!opciones.includes(this.cantidadPuestos)) {
+                this.cantidadPuestos = opciones[opciones.length - 1];
+            }
+        },
         municipioId() {
             this.obtenerNombreMunicipio();
         }
     },
+    computed: {
+        opcionesCantidad() {
+            return [5, 10, 15].filter(cantidad => cantidad === 5 || this.data.length >= cantidad);
+        },
+        totalGrafico() {
+            return this.calcularTotalVotantes();
+        },
+        primerosPuestos() {
+            return this.puestosOrdenados.slice(0, this.cantidadPuestos);
+        },
+        pesoPrimeros() {
+            const suma = this.primerosPuestos.reduce((total, puesto) => total + this.obtenerVotantes(puesto), 0);
+            return this.totalGrafico > 0 ? suma / this.totalGrafico * 100 : 0;
+        },
+        puestosOrdenados() {
+            return [...this.data].sort((a, b) => this.obtenerVotantes(b) - this.obtenerVotantes(a));
+        }
+    },
     methods: {
+        porcentajePuesto(puesto) {
+            return this.totalGrafico > 0 ? this.obtenerVotantes(puesto) / this.totalGrafico * 100 : 0;
+        },
+        formatearPorcentaje(valor) {
+            return `${new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 }).format(valor)} %`;
+        },
         obtenerNombreMunicipio() {
             this.nombreMunicipio = this.municipios[this.municipioId.toString()] || `Municipio ${this.municipioId}`;
         },
@@ -150,6 +206,42 @@ export default {
 </script>
 
 <style scoped>
+.resumen-puestos {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #f8faf9;
+}
+.encabezado-grafico {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+.selector-puestos { display: flex; align-items: center; gap: 0.5rem; margin: 0; }
+.selector-puestos select { width: auto; }
+.escala-grafico { color: #6b7280; font-size: 0.8rem; margin: 0.75rem 0; }
+.barras-puestos { padding: 0; margin: 0; list-style: none; }
+.barras-puestos li {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(100px, 2fr) 80px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    font-size: 0.85rem;
+}
+.nombre-puesto { overflow-wrap: anywhere; }
+.barras-puestos strong { text-align: right; }
+.pista-barra { height: 18px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+.barra-puesto { height: 100%; background: #198754; border-radius: 4px; transition: width 0.2s ease; }
+@media (max-width: 575px) {
+    .barras-puestos li { grid-template-columns: minmax(0, 1fr) 75px; gap: 0.35rem; }
+    .nombre-puesto { grid-column: 1 / -1; }
+}
+.peso-total { margin: 1rem 0 0; color: #166534; }
+
 .general-wrapper {
     width: 100%;
     height: 100%;
@@ -202,7 +294,7 @@ export default {
     color: #198754;
     font-weight: 600;
     border-bottom: 2px solid #28a745;
-    padding: 1rem;
+    padding: 0.6rem 0.875rem;
 }
 
 .table tbody tr {
@@ -215,13 +307,13 @@ export default {
 }
 
 .table tbody td {
-    padding: 0.875rem 1rem;
+    padding: 0.45rem 0.875rem;
     vertical-align: middle;
 }
 
 .badge-success {
     background: linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(25, 135, 84, 0.95));
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 0.75rem;
     font-size: 0.9rem;
     font-weight: 600;
     border-radius: 20px;

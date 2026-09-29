@@ -1,11 +1,12 @@
 <template>
-	<div class="row">
-		<div class="col-12 mb-3">
+	<div class="reporte-coordinador">
+		<div class="selector-reporte">
 			<div class="report-mode-selector">
 				<button
 					type="button"
 					class="mode-option"
 					:class="{ active: reporteTipo === 'personal' }"
+                    :aria-pressed="reporteTipo === 'personal'"
 					@click="cambiarTipoReporte('personal')"
 				>
 					<div class="mode-title">Reporte por Personal</div>
@@ -15,6 +16,7 @@
 					type="button"
 					class="mode-option"
 					:class="{ active: reporteTipo === 'divipole' }"
+                    :aria-pressed="reporteTipo === 'divipole'"
 					@click="cambiarTipoReporte('divipole')"
 				>
 					<div class="mode-title">Reporte por Divipole</div>
@@ -23,8 +25,10 @@
 			</div>
 		</div>
 
+		<div class="caja-filtros-reporte">
+        <div class="campos-reporte">
 		<template v-if="reporteTipo === 'personal'">
-			<div class="col-6" v-if="$store.state.user.role_id !== 5 && $store.state.user.role_id !== 6 ">
+			<div class="campo-reporte" v-if="$store.state.user.role_id !== 5 && $store.state.user.role_id !== 6 ">
 				<label for="coordinador">Coordinador</label>
 				<model-select
 					:options="coordinadores"
@@ -33,8 +37,8 @@
 					id="coordinador"
 				></model-select>
 			</div>
-			<div class="col-6" v-if="$store.state.user.role_id !== 5 ">
-				<label for="lider">Lider</label>
+			<div class="campo-reporte" v-if="$store.state.user.role_id !== 5 ">
+				<label for="lider">Líder</label>
 				<model-select
 					:options="lideres"
 					v-model="reporte.lidere_id"
@@ -44,7 +48,7 @@
 		</template>
 
 		<template v-else>
-			<div class="col-6">
+			<div class="campo-reporte">
 				<label for="departamento">Departamento</label>
 				<model-select
 					:options="departamentos"
@@ -55,7 +59,7 @@
 				></model-select>
 				<small v-if="loadingDepartamentos" class="text-muted">Cargando departamentos...</small>
 			</div>
-			<div class="col-6">
+			<div class="campo-reporte">
 				<label for="municipio">Municipio</label>
 				<model-select
 					:options="municipios"
@@ -65,14 +69,15 @@
 				></model-select>
 				<small v-if="loadingMunicipios" class="text-muted">Cargando municipios...</small>
 			</div>
-			<div class="col-12 mt-2" v-if="errorDivipole">
+			<div class="aviso-reporte" v-if="errorDivipole">
 				<div class="alert alert-warning py-2 mb-0">
 					{{ errorDivipole }}
 				</div>
 			</div>
 		</template>
 
-		<div class="col-12 my-3 d-flex align-items-center gap-2 flex-wrap">
+		</div>
+		<div class="acciones-reporte">
 			<button
 				type="button"
 				class="btn btn-success"
@@ -86,10 +91,11 @@
 					role="status"
 					aria-hidden="true"
 				></span>
-				{{ generandoReporte ? 'Generando reporte...' : 'Generar excel' }}
+				{{ generandoReporte ? 'Generando reporte...' : 'Generar Excel' }}
 			</button>
 			<small class="text-muted" v-if="generandoReporte">Se abrirá una nueva pestaña con el archivo.</small>
 		</div>
+        </div>
 	</div>
 </template>
 <script>
@@ -300,36 +306,29 @@
 	}
 </script>
 <style scoped>
-	.report-mode-selector {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 10px;
-	}
-
-	.mode-option {
-		background: #fff;
-		border: 1px solid #dee2e6;
-		border-radius: 8px;
-		padding: 12px;
-		text-align: left;
-		cursor: pointer;
-		transition: all 0.2s ease;
-	}
-
-	.mode-option:hover {
-		border-color: #198754;
-	}
-
-	.mode-option.active {
-		border-color: #198754;
-		background: #f2fff7;
-	}
-
-	.mode-title {
-		font-weight: 600;
-	}
-
-	.gap-2 {
-		gap: 0.5rem;
-	}
+.reporte-coordinador { background: #fff; padding: 1.25rem; border-radius: 12px; white-space: normal; }
+.report-mode-selector { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
+.mode-option { min-width: 0; padding: 1.25rem; text-align: left; background: #f8faf9; border: 1px solid #e1e8e4; border-radius: 12px; color: #475569; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+.mode-title { color: #198754; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem; }
+.mode-option small { font-size: 0.875rem; }
+.mode-option:hover { border-color: #198754; }
+.mode-option.active { border-color: #198754; background: #eef6f1; box-shadow: inset 4px 0 #198754; }
+.mode-option:focus-visible { outline: 3px solid rgba(25,135,84,0.25); outline-offset: 2px; }
+.caja-filtros-reporte { padding: 1.25rem; background: #f8faf9; border: 1px solid #e1e8e4; border-radius: 12px; }
+.campos-reporte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.25rem; }
+.campo-reporte { min-width: 0; }
+.campo-reporte label { display: block; margin-bottom: 0.4rem; color: #475569; font-size: 0.875rem; font-weight: 600; }
+.campo-reporte ::v-deep .ui.selection.dropdown { width: 100%; min-width: 0; min-height: 44px; border: 1px solid #d8e0dc; border-radius: 8px; font-size: 0.95rem; box-shadow: none; }
+.campo-reporte ::v-deep .ui.selection.dropdown:focus-within { border-color: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,0.12); }
+.aviso-reporte { grid-column: 1 / -1; }
+.acciones-reporte { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+.acciones-reporte .btn-success { min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; background: #198754; border: 1px solid #198754; color: #fff; font-weight: 600; }
+.acciones-reporte .btn-success:hover { background: #146c43; border-color: #146c43; }
+.acciones-reporte .btn-success:focus-visible { outline: 3px solid rgba(25,135,84,0.35); outline-offset: 2px; }
+.acciones-reporte .btn-success:disabled { opacity: 0.65; cursor: not-allowed; }
+@media (max-width: 767px) {
+    .report-mode-selector, .campos-reporte { grid-template-columns: minmax(0, 1fr); }
+    .reporte-coordinador, .mode-option, .caja-filtros-reporte { padding: 1rem; }
+    .acciones-reporte .btn { width: 100%; }
+}
 </style>

@@ -1,5 +1,5 @@
 <template>    
-    <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+    <a-card :bordered="false" class="header-solid h-full personal-admin" :bodyStyle="{padding: 0,}">
         <GestionLideres ref="gestion"></GestionLideres>
         <DeleteLideres ref="delete" />
         <template #title>
@@ -7,9 +7,9 @@
                 <Loading />
             </div>
             <div v-else>
-                <div class="d-flex justify-content-between my-2">
+                <div class="personal-cabecera">
                     <div>
-                        <h3>Gestión de lideres</h3>
+                        <h3>Gestión de líderes</h3>
                     </div>
                     <div>    
                         <button class="btn btn-success mr-2" @click="descargarExcel" v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2">
@@ -39,7 +39,7 @@
                 </div>
                 
                 <!-- Campo de búsqueda -->
-                <div class="row mb-3">
+                <div class="row personal-busqueda">
                     <div class="col-md-6">
                         <div class="search-container">
                             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -467,3 +467,4 @@
         font-size: 1.1rem;
     }
 </style>
+<style scoped src="../../assets/styles/personal-admin.css"></style>

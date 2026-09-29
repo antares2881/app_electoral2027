@@ -1,30 +1,31 @@
 <template>
-    <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+    <a-card :bordered="false" class="header-solid h-full gestion-militantes" :bodyStyle="{padding: 0,}">
 		<template #title>
-            <div class="row">
-                <div class="col-12 col-sm-7 mt-2">
-                    <input type="number" id="id" v-model="votante.id" class="form-control" placeholder="id" @keypress.enter="verificarVotanteConsultado" />
+            <div class="caja-gestion busqueda-gestion">
+                <div class="campo-gestion">
+                    <label for="id">Cédula</label>
+                    <input type="number" id="id" v-model="votante.id" class="form-control" placeholder="Número de cédula" @keypress.enter="verificarVotanteConsultado" />
                 </div>	
-                <div class="col-12 col-sm-5 mt-2">
-					<button class="btn btn-primary btn-block" @click="verificarVotanteConsultado">Buscar</button>
+                <div class="accion-busqueda">
+					<button class="btn btn-verde btn-block" @click="verificarVotanteConsultado">Buscar</button>
 				</div>	
             </div>
-            <div class="row">
-                <div class="col-12 col-sm-5 my-3 card p-3">
-                    <h4>Datos militante</h4>
+            <div class="paneles-gestion">
+                <div class="caja-gestion">
+                    <h4>Datos del militante</h4>
                     <hr>
-                    <p><strong>id: </strong>{{votante.id}}</p>
+                    <p><strong>Cédula: </strong>{{votante.id}}</p>
                     <p><strong>Nombre: </strong>{{votante.nombres}} {{votante.apellidos}}</p>
-                    <p><strong>Lugar de votacion: </strong>{{votante.nombre_puesto}} - Mesa {{votante.mesa}}</p>
+                    <p><strong>Lugar de votación: </strong>{{votante.nombre_puesto}} - Mesa {{votante.mesa}}</p>
                 </div>
-                <div class="col-12 col-sm-7 my-3 table-responsive card p-3">
-                    <h4>Datos lideres</h4>
+                <div class="caja-gestion table-responsive">
+                    <h4>Datos de líderes</h4>
                     <hr>
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Campaña</th>
-                                <th>lider</th>
+                                <th>Líder</th>
                                 <th>Usuario registro</th>
                                 <th>Fecha ingreso</th>
                             </tr>
@@ -40,29 +41,29 @@
                     </table>
                 </div>
                 
-                <div class="col-12">
+                <div class="caja-gestion edicion-gestion">
 					
 					
-					<div class="row">
-						<div class="col-12 col-sm-3 mb-3">
+					<div class="campos-gestion">
+						<div class="campo-gestion">
 							<div class="d-flex justify-content-between">
 								<div>
-									<label for="lider">Lider</label>
+									<label for="lider">Líder</label>
 								</div>
 							</div>
 							<model-select :options="lideres" v-model="votante.lidere_id" id="lider"></model-select>
 						</div>
 						
-						<div class="col-12 col-sm-3 mb-3">
-							<label for="direccion">Direccion</label>
+						<div class="campo-gestion">
+							<label for="direccion">Dirección</label>
 							<input type="text" id="direccion" class="form-control" v-model="votante.direccion">
 						</div>
-						<div class="col-12 col-sm-3 mb-3">
-							<label for="telefono">Telefono</label>
+						<div class="campo-gestion">
+							<label for="telefono">Teléfono</label>
 							<input type="number" id="telefono" class="form-control" v-model="votante.telefono">
 						</div>
-                        <div class="col-12 my-3">
-                            <button class="btn btn-warning mr-2" @click="updateVotante">Actualizar</button>
+                        <div class="acciones-gestion">
+                            <button class="btn btn-verde" @click="updateVotante">Actualizar</button>
                             <button class="btn btn-danger" @click="deleteVotante" v-if="$store.state.user.candidato[0].corporacione_id !== 5">Eliminar</button>
                         </div>					
 					</div>
@@ -241,3 +242,35 @@
         }
     }
 </script>
+
+<style scoped>
+.gestion-militantes { white-space: normal; }
+.caja-gestion { min-width: 0; padding: 1.25rem; background: #f8faf9; border: 1px solid #e1e8e4; border-radius: 12px; }
+.busqueda-gestion { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: end; margin-bottom: 1.25rem; }
+.paneles-gestion { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 1.25rem; }
+.caja-gestion h4 { margin: 0; color: #198754; font-size: 1.1rem; font-weight: 700; }
+.caja-gestion hr { margin: 0.875rem 0 1rem; border-color: #d8e0dc; }
+.caja-gestion p { color: #475569; font-size: 0.95rem; line-height: 1.6; margin: 0 0 0.5rem; overflow-wrap: anywhere; }
+.edicion-gestion { grid-column: 1 / -1; }
+.campos-gestion { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.campo-gestion { min-width: 0; }
+.campo-gestion label { display: block; margin: 0 0 0.4rem; color: #475569; font-size: 0.875rem; font-weight: 600; }
+.campo-gestion .form-control, .campo-gestion ::v-deep .ui.selection.dropdown { width: 100%; min-width: 0; min-height: 44px; border: 1px solid #d8e0dc; border-radius: 8px; font-size: 0.95rem; box-shadow: none; }
+.campo-gestion .form-control { height: 44px; padding: 0.5rem 0.75rem; }
+.campo-gestion .form-control:focus, .campo-gestion ::v-deep .ui.selection.dropdown:focus-within { border-color: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,0.12); }
+.acciones-gestion { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.gestion-militantes .btn { min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; }
+.btn-verde { background: #198754; border: 1px solid #198754; color: white; }
+.btn-verde:hover { background: #146c43; border-color: #146c43; color: white; }
+.btn-verde:focus-visible { outline: 3px solid rgba(25,135,84,0.35); outline-offset: 2px; }
+.table { margin-bottom: 0; font-size: 0.875rem; background: white; }
+.table thead th { background: #eef6f1; color: #166534; border-bottom: 2px solid #d8e0dc; }
+.table th, .table td { padding: 0.7rem 0.8rem; vertical-align: middle; border-color: #e1e8e4; }
+.table tbody tr:hover { background: #f0f7f3; }
+@media (max-width: 991px) { .paneles-gestion { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 767px) {
+    .campos-gestion, .busqueda-gestion { grid-template-columns: minmax(0, 1fr); }
+    .caja-gestion { padding: 1rem; }
+    .accion-busqueda .btn { width: 100%; }
+}
+</style>

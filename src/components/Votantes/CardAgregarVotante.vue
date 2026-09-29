@@ -1,66 +1,77 @@
 <template>
-	<a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+	<a-card :bordered="false" class="header-solid h-full agregar-votante" :bodyStyle="{padding: 0,}">
 		<template #title>
 			<GestionProfesiones ref="profesiones" @profesion_id="updateProfesioneid" />
 			<!-- <ModalGenerateToken ref="modalToken" /> -->
 			<GestionLideres ref="gestion" @setLideres="setLideres" />
 			<VotantesRepetidos ref="votanteRepetido" />
-			<div class="row" >
-				<div class="col-12 col-sm-7 mt-2">
-					<input type="number" id="cedula" v-model="votante.cedula" class="form-control" placeholder="Cedula" @keypress.enter="verificarVotanteConsultado" :disabled="nuevoVotante" />
+            <div class="acciones-votante">
+                <div class="seccion-formulario">
+			<div class="busqueda-votante" >
+				<div class="campo-cedula">
+					<label for="cedula" class="etiqueta-cedula">Cédula</label>
+                    <input type="number" id="cedula" v-model="votante.cedula" class="form-control" placeholder="Número de cédula" @keypress.enter="verificarVotanteConsultado" :disabled="nuevoVotante" />
 				</div>	
-				<div class="col-12 col-sm-5 mt-2">
-					<button class="btn btn-dark btn-block"  @click="nuevaBusqueda" v-if="nuevoVotante">Nueva busqueda</button>
-				<button class="btn btn-dark btn-block" @click="verificarVotanteConsultado" v-else :disabled="loading || isProcessing">
+				<div class="accion-buscar">
+					<button class="btn btn-buscar btn-block"  @click="nuevaBusqueda" v-if="nuevoVotante">Nueva busqueda</button>
+				<button class="btn btn-buscar btn-block" @click="verificarVotanteConsultado" v-else :disabled="loading || isProcessing">
 					<span v-if="loading || isProcessing" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
 					{{ (loading || isProcessing) ? 'Buscando...' : 'Buscar' }}
 					</button>
 				</div>	
 			</div>
+                </div>
+                <div class="seccion-formulario caja-guardar">
+                    <div class="accion-guardar"><button class="btn btn-guardar" @click="guardarVotante" :disabled="loadingSave || !showForm || !cedValida">
+						<span v-if="loadingSave" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+						{{ loadingSave ? 'Guardando...' : 'Guardar votante' }}
+					</button></div>
+                </div>
+            </div>
 			<div class="row">
 				<div class="col-md-12 mt-2" v-if="msnconexion">
 					<p class="alert alert-info overflow-visible">No se recibio respuesta del servidor, puedes agregar el registro de forma manual o comunicarte con el administrador del sistema.</p>
 				</div>
 			</div>
-			<div class="row" v-if="showForm">
-				<div class="col-12">
-					<h5 class="card-tag mt-3">Lugar votación</h5>
+			<div class="formulario-votante" v-if="showForm">
+				<div class="seccion-formulario">
+					<h5 class="card-tag">Lugar votación</h5>
 					<hr>
-					<div class="row">
-						<div class="col-12 col-sm-4 mb-3">
+					<div class="campos-formulario">
+						<div class="campo-formulario">
 							<label for="departamento">Departamento votación</label>
 					<select id="departamento" class="form-control" v-model="votante.departamento_id" @change="getMunicipio" :disabled="lugarDesdeApi">
 								<option v-for="(item, index) in departamentos" :key="index" :value="item.id">{{ item.departamento }}</option>
 							</select>
 						</div>
-						<div class="col-12 col-sm-4 mb-3">
+						<div class="campo-formulario">
 							<label for="municipio">Municipio votación</label>
 					<select id="municipio" class="form-control" v-model="votante.municipio_id" @change="getZonas" :disabled="lugarDesdeApi">
 								<option v-for="(item, index) in municipios" :key="index" :value="item.id">{{ item.municipio }}</option>
 							</select>
 						</div>
-						<div class="col-12 col-sm-4 mb-3">
+						<div class="campo-formulario">
 							<label for="nombre_puesto">Puesto votación</label>
 					<select id="nombre_puesto" v-model="votante.nombre_puesto" class="form-control" @change="setPuesto" :disabled="lugarDesdeApi">
 								<option v-for="(puesto, index) in puestos" :key="index" :value="puesto.nombre_puesto">{{ puesto.nombre_puesto }}</option>
 							</select>
 						</div>
-						<div class="col-12 col-sm-4 mb-3" v-if="$store.state.user.candidato[0].municipio_id === 1">
+						<div class="campo-formulario" v-if="$store.state.user.candidato[0].municipio_id === 1">
 							<label for="comuna">Comuna</label>
-							<b-select id="comuna" class="form-control" v-model="votante.comuna" :options="comunas">
+							<b-select id="comuna" class="form-control" v-model="votante.comuna" :options="comunas" :disabled="lugarDesdeApi">
 							</b-select>
 						</div>
-						<div class="col-12 col-sm-2">
+						<div class="campo-formulario">
 							<label for="mesa">Mesa</label>
 					<input type="text" id="mesa" class="form-control" v-model="votante.mesa" :disabled="lugarDesdeApi">
 						</div>
 					</div>
 				</div>
-				<div class="col-12">
+				<div class="seccion-formulario">
 					<h5 class="card-tag">Otros datos</h5>
 					<hr>
-					<div class="row">
-						<div class="col-12 col-sm-3 mb-3">
+					<div class="campos-formulario">
+						<div class="campo-formulario">
 							<div class="d-flex justify-content-between">
 								<div>
 									<label for="lider">Lider</label>
@@ -68,7 +79,7 @@
 							</div>
 							<model-select :options="lideres" v-model="votante.lidere_id" id="lider" @input="getSublideres"></model-select>
 						</div>
-						<div class="col-12 col-sm-3 mb-3" v-if="sublideres.length > 0">
+						<div class="campo-formulario" v-if="sublideres.length > 0">
 							<div class="d-flex justify-content-between">
 								<div>
 									<label for="sublider">Sublider</label>
@@ -76,21 +87,21 @@
 							</div>
 							<model-select :options="sublideres" v-model="votante.sublidere_id" id="sublider"></model-select>
 						</div>
-						<div class="col-12 col-sm-3 mb-3">
+						<div class="campo-formulario">
 							<label for="nombres">Nombres votante</label>
 							<input type="text" class="form-control" id="nombres" v-model="votante.nombres" required>
 						</div>
-						<div class="col-12 col-sm-3 mb-3">
+						<div class="campo-formulario">
 							<label for="apellidos">Apellidos votante</label>
 							<input type="text" class="form-control" id="apellidos" v-model="votante.apellidos" required>
 						</div>
 						
 						
-						<div class="col-12 col-sm-3 mb-3">
+						<div class="campo-formulario">
 							<label for="direccion">Direccion</label>
 							<input type="text" id="direccion" class="form-control" v-model="votante.direccion">
 						</div>
-						<div class="col-12 col-sm-3 mb-3">
+						<div class="campo-formulario">
 							<label for="telefono">Telefono</label>
 							<input type="number" id="telefono" class="form-control" v-model="votante.telefono">
 						</div>
@@ -100,12 +111,7 @@
 				<div class="col-12 my-3" v-if="errores !== null">
 					<p class="alert alert-danger">{{ errores }}</p>
 				</div>
-				<div class="col-12 my-3" v-if="cedValida">
-					<button class="btn btn-dark" @click="guardarVotante" :disabled="loadingSave">
-						<span v-if="loadingSave" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-						{{ loadingSave ? 'Guardando...' : 'Guardar votante' }}
-					</button>
-				</div>
+
 				<div class="col-12 my-3" v-if="repetido && $store.state.user.role_id === 2">
 					<button class="btn btn-warning mr-2" @click="updateVotante" :disabled="loadingUpdate">
 						<span v-if="loadingUpdate" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -672,6 +678,76 @@
 	}
 </script>
 <style scoped>
+    .acciones-votante { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; white-space: normal; }
+    .busqueda-votante { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; align-items: end; }
+    .caja-guardar { display: flex; flex-direction: column; }
+    .accion-guardar { margin-top: auto; }
+    .accion-guardar .btn-guardar { width: 100%; }
+    @media (max-width: 767px) { .acciones-votante { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 420px) { .busqueda-votante { grid-template-columns: minmax(0, 1fr); } }
+    .etiqueta-cedula { display: block; margin-bottom: 0.4rem; color: #475569; font-size: 0.875rem; font-weight: 600; }
+    #cedula { height: 44px; padding: 0.5rem 0.75rem; border: 1px solid #d8e0dc; border-radius: 8px; font-size: 0.95rem; }
+    #cedula:focus { border-color: #198754; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12); }
+    #cedula:disabled { background: #eef2f0; color: #64748b; }
+    .btn-buscar, .btn-guardar { min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; background: #198754; border: 1px solid #198754; color: #fff; }
+    .btn-buscar { width: 100%; }
+    .btn-buscar:hover, .btn-guardar:hover { background: #146c43; border-color: #146c43; color: #fff; }
+    .btn-buscar:focus-visible, .btn-guardar:focus-visible { outline: 3px solid rgba(25, 135, 84, 0.35); outline-offset: 2px; }
+
+    .formulario-votante {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+        white-space: normal;
+    }
+    .seccion-formulario {
+        min-width: 0;
+        padding: 1.25rem;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 12px;
+    }
+    .seccion-formulario .card-tag {
+        margin: 0;
+        color: #198754;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .seccion-formulario hr { margin: 0.875rem 0 1.125rem; }
+    .campos-formulario { display: grid; gap: 1rem; }
+    .campo-formulario { min-width: 0; }
+    .campo-formulario label {
+        display: block;
+        margin: 0 0 0.4rem;
+        color: #475569;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    .campo-formulario .form-control,
+    .campo-formulario ::v-deep .ui.selection.dropdown {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        border: 1px solid #d8e0dc;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-shadow: none;
+    }
+    .campo-formulario .form-control { height: 42px; padding: 0.5rem 0.75rem; }
+    .campo-formulario .form-control:focus,
+    .campo-formulario ::v-deep .ui.selection.dropdown:focus-within {
+        border-color: #198754;
+        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+    }
+    .campo-formulario .form-control:disabled { background: #eef2f0; color: #64748b; }
+    .formulario-votante > .col-12 { grid-column: 1 / -1; padding: 0; }
+    @media (max-width: 767px) {
+        .formulario-votante { grid-template-columns: minmax(0, 1fr); }
+        .seccion-formulario { padding: 1rem; }
+    }
+
 	.b-icon.bi{
 		cursor: pointer;
 	}

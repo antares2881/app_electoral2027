@@ -1,5 +1,5 @@
 <template>
-    <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+    <a-card :bordered="false" class="header-solid h-full personal-admin" :bodyStyle="{padding: 0,}">
         <GestionUser ref="gestionUser" />
         
         <!-- Modal de cambio de contraseña -->
@@ -34,7 +34,7 @@
             </a-row>
             <a-row type="flex" v-else>
                 <a-col :span="24" :md="24" >
-                    <div class="d-flex justify-content-between my-3">
+                    <div class="personal-cabecera">
                         <div>
                             <h4><strong>Usuarios </strong></h4>
                         </div>
@@ -51,7 +51,7 @@
                     </div>
                     
                     <!-- Campo de búsqueda -->
-                    <div class="row mb-3">
+                    <div class="row personal-busqueda">
                         <div class="col-md-6">
                             <div class="search-container">
                                 <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -490,3 +490,4 @@
         padding-left: 1rem;
     }
 </style>
+<style scoped src="../../assets/styles/personal-admin.css"></style>

@@ -1,30 +1,36 @@
 <template>
-	<a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+	<a-card :bordered="false" class="header-solid h-full reporte-repetidos" :bodyStyle="{padding: 0,}">
 		<template #title>
             <div v-if="loader">
                 <Loading />
             </div>
-            <div class="table-responsive tabla" v-else>
-                <a v-if="canDescargarExcel" :href=" url + '/imprimir-votantes-repetidos/' + $store.state.user.token_id " class="btn btn-success my-3" target="_blank"><b-icon icon="file-excel"></b-icon> Descargar excel</a>
-                <button v-if="canDescargarExcelFront" class="btn btn-success my-3 ml-2" @click="descargarExcelFront">
+            <div v-else>
+                <div class="cabecera-repetidos">
+                    <h3>Militantes repetidos</h3>
+                    <div class="acciones-repetidos">
+                <a v-if="canDescargarExcel" :href=" url + '/imprimir-votantes-repetidos/' + $store.state.user.token_id " class="btn btn-success" target="_blank"><b-icon icon="file-excel"></b-icon> Descargar Excel</a>
+                <button v-if="canDescargarExcelFront" class="btn btn-success" @click="descargarExcelFront">
                     <b-icon icon="file-excel"></b-icon> Descargar registros (tabla)
                 </button>
-				<table id="tabla-votantes-repetidos" class="table table-striped">
+				</div>
+                </div>
+                <div class="table-responsive tabla">
+                <table id="tabla-votantes-repetidos" class="table table-striped">
                     <thead>
                         <tr v-if="isAdminRole">
-                            <th>Cedula</th>
+                            <th>Cédula</th>
                             <th>Militante</th>
-                            <th>Telefono</th>
+                            <th>Teléfono</th>
                             <th>Puesto</th>
                             <th>Mesa</th>
-                            <th>Lideres</th>
-                            <th>Sublideres</th>
+                            <th>Líderes</th>
+                            <th>Sublíderes</th>
                         </tr>
                         <tr v-else>
-                            <th>Cedula</th>
+                            <th>Cédula</th>
                             <th>Militante</th>
                             <th>Candidato</th>
-                            <th>Lider</th>
+                            <th>Líder</th>
                             <th>Fecha ingreso</th>
                         </tr>
                     </thead>
@@ -49,6 +55,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
 			</div>
 		</template>
 	</a-card>
@@ -150,10 +157,36 @@
     }
 </script>
 <style scoped>
-    .tabla{
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-        height: 500px;
-    }
+.reporte-repetidos { white-space: normal; }
+.cabecera-repetidos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    background: #f8faf9;
+    border: 1px solid #e1e8e4;
+    border-radius: 12px;
+}
+.cabecera-repetidos h3 { margin: 0; color: #198754; font-size: 1.15rem; font-weight: 700; }
+.acciones-repetidos { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.acciones-repetidos .btn-success { min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; background: #198754; border: 1px solid #198754; color: #fff; }
+.acciones-repetidos .btn-success:hover { background: #146c43; border-color: #146c43; }
+.acciones-repetidos .btn-success:focus-visible { outline: 3px solid rgba(25,135,84,0.35); outline-offset: 2px; }
+.tabla { width: 100%; max-height: 500px; overflow: auto; border: 1px solid #e1e8e4; border-radius: 12px; }
+.tabla .table { margin: 0; border-collapse: separate; border-spacing: 0; font-size: 0.9rem; color: #334155; }
+.tabla th, .tabla td { padding: 0.75rem 0.875rem; vertical-align: middle; border: 0; border-bottom: 1px solid #e1e8e4; }
+.tabla thead th { position: sticky; top: 0; z-index: 1; background: #eef6f1; color: #166534; font-weight: 700; white-space: nowrap; }
+.tabla tbody tr:nth-child(odd) { background: #fff; }
+.tabla tbody tr:nth-child(even) { background: #f8faf9; }
+.tabla tbody tr:hover { background: #f0f7f3; }
+.tabla td { min-width: 110px; }
+.tabla td:first-child { white-space: nowrap; }
+@media (max-width: 767px) {
+    .cabecera-repetidos { padding: 1rem; }
+    .acciones-repetidos, .acciones-repetidos .btn { width: 100%; }
+    .tabla th, .tabla td { padding: 0.6rem 0.75rem; }
+}
 </style>

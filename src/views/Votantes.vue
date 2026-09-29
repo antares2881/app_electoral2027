@@ -1,10 +1,5 @@
 <template>
     <div class="row">
-        <div class="col-md-12 my-3">
-            <button class="btn btn-success mr-2"  @click="option=1"> <b-icon icon="person-check"></b-icon> Agregar militante</button>
-            <button class="btn btn-dark mr-2"  @click="option=2" v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2"> <b-icon icon="bar-chart"></b-icon> Ver militantes</button>
-            <button class="btn btn-success mr-2"  @click="option=3" v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2"> <b-icon icon="pencil-square"></b-icon> Gestionar militantes</button>
-        </div>
         <div class="col-md-12">
             <CardAgregarVotante v-if="option === 1"></CardAgregarVotante>
             <CardVotantePuesto v-if="option === 2"></CardVotantePuesto>
@@ -22,15 +17,14 @@
             CardVotantePuesto,
             CardGestionVotantes
         },
-        data() {
-            return {
-                option: 0
+        computed: {
+            option() {
+                const opcion = this.$route.query.opcion;
+                const puedeGestionar = [1, 2].includes(this.$store.state.user.role_id);
+                if (puedeGestionar && opcion === 'ver') return 2;
+                if (puedeGestionar && opcion === 'gestionar') return 3;
+                return 1;
             }
-        },
-        methods: {
-            
-        },
+        }
     }
 </script>
-<style lang="scss">
-</style>

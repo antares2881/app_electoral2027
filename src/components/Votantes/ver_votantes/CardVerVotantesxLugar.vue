@@ -9,7 +9,7 @@
             
             <!-- Filtros -->
             <div class="filtros-container">
-                <div class="filtro-item">
+                <div class="filtro-item" v-if="mostrarDepartamento">
                     <label>Departamento:</label>
                     <input 
                         type="text" 
@@ -18,7 +18,7 @@
                         placeholder="Filtrar por departamento..."
                     />
                 </div>
-                <div class="filtro-item">
+                <div class="filtro-item" v-if="mostrarMunicipio">
                     <label>Municipio:</label>
                     <input 
                         type="text" 
@@ -42,11 +42,11 @@
                 <table class="table">
                     <thead>
                         <tr class="text-center">
-                            <th @click="ordenarPor('departamento')" class="sortable">
+                            <th v-if="mostrarDepartamento" @click="ordenarPor('departamento')" class="sortable">
                                 Departamento 
                                 <i class="fas" :class="getIconoOrden('departamento')"></i>
                             </th>
-                            <th @click="ordenarPor('municipio')" class="sortable">
+                            <th v-if="mostrarMunicipio" @click="ordenarPor('municipio')" class="sortable">
                                 Municipio 
                                 <i class="fas" :class="getIconoOrden('municipio')"></i>
                             </th>
@@ -63,8 +63,8 @@
                     </thead>
                     <tbody>
                         <tr v-for="(item, index) in datosFiltradosYOrdenados" :key="index" class="text-center">
-                            <td>{{ item.departamento }}</td>
-                            <td>{{ item.municipio }}</td>
+                            <td v-if="mostrarDepartamento">{{ item.departamento }}</td>
+                            <td v-if="mostrarMunicipio">{{ item.municipio }}</td>
                             <td>{{ item.lugar }}</td>
                             <td>{{ formatearNumero(item.votantes) }}</td>
                             <td>
@@ -74,7 +74,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="text-center">
-                            <th colspan="3">Total</th>
+                            <th :colspan="1 + Number(mostrarDepartamento) + Number(mostrarMunicipio)">Total</th>
                             <th>{{ formatearNumero(totalVotantes) }}</th>
                             <th></th>
                         </tr>
@@ -186,13 +186,24 @@
             }
         },
         computed:{
+            corporacionCandidato() {
+                const candidato = this.$store.state.user.candidato;
+                const configurado = Array.isArray(candidato) ? candidato[0] : candidato;
+                return Number(configurado && configurado.corporacione_id);
+            },
+            mostrarDepartamento() {
+                return [2, 3].includes(this.corporacionCandidato);
+            },
+            mostrarMunicipio() {
+                return [1, 2, 3, 6, 7].includes(this.corporacionCandidato);
+            },
             datosFiltradosYOrdenados(){
                 // Primero filtrar
                 let resultado = this.datosOrdenados.filter(item => {
-                    const cumpleDepartamento = !this.filtros.departamento || 
+                    const cumpleDepartamento = !this.mostrarDepartamento || !this.filtros.departamento || 
                         item.departamento.toLowerCase().includes(this.filtros.departamento.toLowerCase())
                     
-                    const cumpleMunicipio = !this.filtros.municipio || 
+                    const cumpleMunicipio = !this.mostrarMunicipio || !this.filtros.municipio || 
                         item.municipio.toLowerCase().includes(this.filtros.municipio.toLowerCase())
                     
                     const cumplePuesto = !this.filtros.puesto || 

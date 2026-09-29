@@ -1,9 +1,6 @@
 <template>
-    <div v-if="loader">
-        <Loading />
-    </div>
-    <div v-else>
-        <div v-if="data.length > 0" class="contenedor-principal" :class="{'tabla-completa': !mostrarGrafico}">
+    <div>
+        <div v-if="data.length > 0" class="contenedor-principal">
             <div class="contenedor-tabla">
                 <div class="mb-3">
                     <input 
@@ -21,6 +18,7 @@
                                 <th>{{ (data[0].opcion == 2)?'Lider':'Coordinador' }}</th>
                                 <th>Meta</th>
                                 <th>#Ingresados</th>
+                                <th>% del total mostrado</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -29,6 +27,14 @@
                                 <td>{{ item.nombres }} {{ item.apellidos }}</td>
                                 <td>{{ formatearNumero(item.meta_votantes) }}</td>
                                 <td>{{ formatearNumero(item.votantes) }}</td>
+                                <td class="celda-porcentaje">
+                                    <div class="peso-personal">
+                                        <div class="pista-progreso" role="progressbar" :aria-label="`Participación de ${item.nombres}`" :aria-valuenow="porcentaje(item)" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="barra-progreso" :style="{ width: porcentaje(item) + '%' }"></div>
+                                        </div>
+                                        <strong>{{ formatearPorcentaje(porcentaje(item)) }}</strong>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                         <tfoot>
@@ -37,142 +43,68 @@
                                 <th>Total</th>
                                 <th>{{ formatearNumero(totalProyectado) }}</th>
                                 <th>{{ formatearNumero(totalVotantes) }}</th>
+                                <th>{{ totalVotantes > 0 ? '100 %' : '0 %' }}</th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>        
-            <div class="contenedor-grafico" v-if="render && mostrarGrafico">
-                <button @click="abrirModal" class="btn-ver-grafico">
-                    <i class="fas fa-chart-pie"></i> Ver Gráfico Completo
-                </button>
-                <div class="grafico-preview">
-                    <chart-pie :height="280" :data="barChartData"></chart-pie>
-                </div>
-            </div>
+
         </div>
         <div v-else>
             <p class="alert alert-info">La consulta no arrojo datos</p>
         </div>
 
-        <!-- Modal para gráfico grande -->
-        <div v-if="mostrarModal" class="modal-overlay" @click="cerrarModal">
-            <div class="modal-contenido" @click.stop>
-                <button @click="cerrarModal" class="btn-cerrar">
-                    <i class="fas fa-times"></i>
-                </button>
-                <h3 class="modal-titulo">{{ (data[0].opcion == 2)?'Distribución por Lider':'Distribución por Coordinador' }}</h3>
-                <div class="modal-grafico">
-                    <chart-pie :height="500" :data="barChartData"></chart-pie>
-                </div>
-            </div>
-        </div>
+
     </div>
 </template>
 <script>
-    import ChartPie from '../../Charts/ChartPie.vue' ;
-    import Loading from '../../Loader/Loading.vue'
-    export default {        
-        components:{
-            ChartPie,
-            Loading
+export default {
+    props: ['data'],
+    data() { return { filtro: '' }; },
+    methods: {
+        formatearNumero(numero) {
+            return new Intl.NumberFormat('es-CO').format(Number(numero) || 0);
         },
-        props: ['data'],
-        data() {
-            return {
-                barChartData: {
-					labels: [],
-					datasets: [
-                        {
-                            label: "",
-                            backgroundColor: [
-                                'rgb(255, 99, 132)',
-                                'rgb(54, 162, 235)',
-                                'rgb(255, 205, 86)'
-                            ],
-                            borderWidth: 5,
-                            borderSkipped: false,
-                            borderRadius: 0,
-                            data: [],
-                            maxBarThickness: 20,
-                            spacing: 2,
-                        }, 
-                    ],
-				},
-                loader: true,
-                render: false,
-                filtro: '',
-                datosOrdenados: [],
-                mostrarModal: false
-            }
+        porcentaje(item) {
+            return this.totalVotantes > 0 ? (Number(item.votantes) || 0) / this.totalVotantes * 100 : 0;
         },
-        mounted() {
-            console.log(this.data)
-            this.ordenarDatos()
-            this.setChart()
-        },        
-        methods:{
-            ordenarDatos(){
-                // Ordenar los datos por número de votantes de mayor a menor
-                this.datosOrdenados = [...this.data].sort((a, b) => b.votantes - a.votantes)
-            },
-            setChart(){
-                for (let i = 0; i < this.datosOrdenados.length; i++) {
-                    this.barChartData.labels.push(this.datosOrdenados[i].nombres)										
-					this.barChartData.datasets[0].data.push(this.datosOrdenados[i].votantes)		        
-                }
-                this.render = true
-                this.loader = false
-            },
-            formatearNumero(numero){
-                return numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-            },
-            abrirModal(){
-                this.mostrarModal = true
-                document.body.style.overflow = 'hidden'
-            },
-            cerrarModal(){
-                this.mostrarModal = false
-                document.body.style.overflow = 'auto'
-            }
+        formatearPorcentaje(valor) {
+            return `${new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 }).format(valor)} %`;
+        }
+    },
+    computed: {
+        datosFiltrados() {
+            const filtro = this.filtro.toLowerCase();
+            return this.data.filter(item => `${item.nombres || ''} ${item.apellidos || ''}`.toLowerCase().includes(filtro))
+                .sort((a, b) => (Number(b.votantes) || 0) - (Number(a.votantes) || 0));
         },
-        computed:{
-            mostrarGrafico(){
-                return this.data.length > 0 && this.data[0].opcion === 1
-            },
-            datosFiltrados(){
-                if (!this.filtro) {
-                    return this.datosOrdenados
-                }
-                const filtroLower = this.filtro.toLowerCase()
-                return this.datosOrdenados.filter(item => {
-                    const nombreCompleto = `${item.nombres} ${item.apellidos}`.toLowerCase()
-                    return nombreCompleto.includes(filtroLower)
-                })
-            },
-            totalProyectado(){
-                return this.datosFiltrados.reduce((a, b) => a + b.meta_votantes, 0)
-            },
-            totalVotantes(){
-                return this.datosFiltrados.reduce((a, b) => a + b.votantes, 0)
-            },
+        totalProyectado() {
+            return this.datosFiltrados.reduce((total, item) => total + (Number(item.meta_votantes) || 0), 0);
+        },
+        totalVotantes() {
+            return this.datosFiltrados.reduce((total, item) => total + (Number(item.votantes) || 0), 0);
         }
     }
+}
 </script>
 <style scoped>
+    .contenedor-tabla { min-width: 0; }
+    .celda-porcentaje { min-width: 220px; width: 30%; }
+    .peso-personal { display: flex; align-items: center; gap: 12px; }
+    .peso-personal strong { min-width: 65px; text-align: right; color: #166534; font-variant-numeric: tabular-nums; }
+    .pista-progreso { flex: 1; height: 12px; background: #e5e7eb; border-radius: 6px; overflow: hidden; }
+    .barra-progreso { height: 100%; background: #198754; border-radius: 6px; transition: width 0.2s ease; }
+
     /* Contenedor principal */
     .contenedor-principal {
         display: grid;
-        grid-template-columns: 1fr 400px;
+        grid-template-columns: minmax(0, 1fr);
         gap: 20px;
         width: 100%;
         padding: 20px;
     }
 
-    /* Cuando no hay gráfico, la tabla ocupa todo el ancho */
-    .contenedor-principal.tabla-completa {
-        grid-template-columns: 1fr;
-    }
 
     /* Contenedor de tabla - Ocupa todo el ancho disponible */
     .contenedor-tabla {
@@ -276,140 +208,6 @@
         font-size: 15px;
     }
 
-    /* Contenedor del gráfico */
-    .contenedor-grafico {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .grafico-preview {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Botón para ver gráfico */
-    .btn-ver-grafico {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
-    }
-
-    .btn-ver-grafico:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
-    }
-
-    .btn-ver-grafico:active {
-        transform: translateY(0);
-    }
-
-    /* Modal */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        padding: 20px;
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-
-    .modal-contenido {
-        background: white;
-        border-radius: 16px;
-        padding: 30px;
-        max-width: 1200px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(50px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .modal-titulo {
-        margin: 0 0 20px 0;
-        color: #166534;
-        font-size: 24px;
-        font-weight: 700;
-        text-align: center;
-    }
-
-    .modal-grafico {
-        width: 100%;
-        min-height: 500px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-cerrar {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: #ef4444;
-        color: white;
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 18px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-    }
-
-    .btn-cerrar:hover {
-        background: #dc2626;
-        transform: rotate(90deg);
-    }
-
     /* Alerta de sin datos */
     .alert-info {
         background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
@@ -454,22 +252,9 @@
             padding: 10px 12px;
         }
 
-        .contenedor-grafico {
-            padding: 15px;
-        }
 
-        .modal-contenido {
-            padding: 20px;
-            max-width: 95%;
-        }
 
-        .modal-titulo {
-            font-size: 20px;
-        }
 
-        .modal-grafico {
-            min-height: 400px;
-        }
     }
 
     /* Responsive para móviles (menor a 576px) */
@@ -506,31 +291,10 @@
             padding: 8px 10px;
         }
 
-        .contenedor-grafico {
-            padding: 10px;
-        }
 
-        .btn-ver-grafico {
-            font-size: 12px;
-            padding: 10px 15px;
-        }
 
-        .modal-contenido {
-            padding: 15px;
-        }
 
-        .modal-titulo {
-            font-size: 18px;
-        }
 
-        .modal-grafico {
-            min-height: 300px;
-        }
 
-        .btn-cerrar {
-            width: 35px;
-            height: 35px;
-            font-size: 16px;
-        }
     }
 </style>

@@ -28,7 +28,7 @@
 						<span class="label">Dashboard</span>
 					</router-link>
 				</a-menu-item>
-				<a-menu-item v-if="$store.state.user.role_id !== 3">
+				<!-- <a-menu-item v-if="$store.state.user.role_id !== 3">
 					<router-link to="/asistencia">
 						<span class="icon">
 							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,7 +49,7 @@
 						</span>
 						<span class="label">Preconteo</span>
 					</router-link>
-				</a-menu-item>
+				</a-menu-item> -->
 				
 				<!-- <a-menu-item >
 					<router-link to="/consultar">
@@ -61,46 +61,49 @@
 						<span class="label">Consultar</span>
 					</router-link>
 				</a-menu-item> -->
-				<a-menu-item v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4">
-					<router-link to="/informes">
-						<span class="icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v2a1 1 0 102 0v-2zm2-3a1 1 0 011 1v4a1 1 0 11-2 0v-4a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" fill="#FFFFFF"/>
-							</svg>
-						</span>
-						<span class="label">Informes</span>
-					</router-link>
-				</a-menu-item>
-				<a-menu-item v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 8">
-					<router-link to="/estadisticas">
-						<span class="icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" fill="#FFFFFF"/>
-							</svg>
-						</span>
-						<span class="label">Estadisticas</span>
-					</router-link>
-				</a-menu-item>				
-				<a-menu-item v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4">
-					<router-link to="/programador">
-						<span class="icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M6 2C5.44772 2 5 2.44772 5 3V4H4C2.89543 4 2 4.89543 2 6V16C2 17.1046 2.89543 18 4 18H16C17.1046 18 18 17.1046 18 16V6C18 4.89543 17.1046 4 16 4H15V3C15 2.44772 14.5523 2 14 2C13.4477 2 13 2.44772 13 3V4H7V3C7 2.44772 6.55228 2 6 2ZM6 7C5.44772 7 5 7.44772 5 8C5 8.55228 5.44772 9 6 9H14C14.5523 9 15 8.55228 15 8C15 7.44772 14.5523 7 14 7H6Z" fill="#FFFFFF"/>
-							</svg>
-						</span>
-						<span class="label">Programador</span>
-					</router-link>
-				</a-menu-item>
-				<a-menu-item v-if="$store.state.user.role_id !== 3 && $store.state.user.role_id !== 10 && $store.state.user.role_id !== 11">
-					<router-link to="/militantes">
-						<span class="icon">
+				<a-menu-item-group key="estadisticas-informes" class="submenu-militantes" v-if="[1, 2, 4, 8].includes($store.state.user.role_id)">
+                    <button slot="title" type="button" class="titulo-militantes titulo-estadisticas-informes" :aria-expanded="String(menuAbierto.includes('estadisticas-informes'))" @click="menuAbierto = menuAbierto.includes('estadisticas-informes') ? [] : ['estadisticas-informes']">
+                        <span class="icon"><b-icon icon="bar-chart"></b-icon></span>
+                        <span class="label">Estadísticas e informes</span>
+                        <span class="flecha-militantes" aria-hidden="true">{{ menuAbierto.includes('estadisticas-informes') ? '▾' : '▸' }}</span>
+                    </button>
+                    <a-menu-item key="submenu-estadisticas" v-if="menuAbierto.includes('estadisticas-informes') && [1, 2, 8].includes($store.state.user.role_id)">
+                        <router-link class="enlace-submenu-militantes" to="/estadisticas" active-class="opcion-activa">Estadísticas</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="submenu-informes" v-if="menuAbierto.includes('estadisticas-informes') && [1, 2, 4].includes($store.state.user.role_id)">
+                        <router-link class="enlace-submenu-militantes" to="/informes" active-class="opcion-activa">Informes</router-link>
+                    </a-menu-item>
+                </a-menu-item-group>				
+				<a-menu-item-group key="programador" class="submenu-militantes" v-if="[1, 2, 4].includes($store.state.user.role_id)">
+                    <button slot="title" type="button" class="titulo-militantes" :aria-expanded="String(menuAbierto.includes('programador'))" @click="menuAbierto = menuAbierto.includes('programador') ? [] : ['programador']">
+                        <span class="icon"><b-icon icon="calendar"></b-icon></span>
+                        <span class="label">Programador</span>
+                        <span class="flecha-militantes" aria-hidden="true">{{ menuAbierto.includes('programador') ? '▾' : '▸' }}</span>
+                    </button>
+                    <a-menu-item key="programador-agendas" v-if="menuAbierto.includes('programador')">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/programador', query: { opcion: 'agendas' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/programador' && $route.query.opcion !== 'calendario' }">Agendas</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="programador-calendario" v-if="menuAbierto.includes('programador')">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/programador', query: { opcion: 'calendario' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/programador' && $route.query.opcion === 'calendario' }">Calendario electoral</router-link>
+                    </a-menu-item>
+                </a-menu-item-group>
+                <a-menu-item-group key="militantes" class="submenu-militantes" v-if="$store.state.user.role_id !== 3 && $store.state.user.role_id !== 10 && $store.state.user.role_id !== 11">
+                    <button slot="title" type="button" class="titulo-militantes" :aria-expanded="String(menuAbierto.includes('militantes'))" @click="menuAbierto = menuAbierto.includes('militantes') ? [] : ['militantes']"><span class="icon">
 							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" fill="#FFFFFF"/>
 							</svg>
 						</span>
-						<span class="label">Militantes</span>
-					</router-link>
-				</a-menu-item>
+						<span class="label">Militantes</span><span class="flecha-militantes" aria-hidden="true">{{ menuAbierto.includes('militantes') ? '▾' : '▸' }}</span></button>
+                    <a-menu-item key="militantes-agregar" v-if="menuAbierto.includes('militantes')">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/militantes', query: { opcion: 'agregar' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/militantes' && !['ver', 'gestionar'].includes($route.query.opcion) }">Agregar militante</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="militantes-ver" v-if="menuAbierto.includes('militantes') && ($store.state.user.role_id === 1 || $store.state.user.role_id === 2)">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/militantes', query: { opcion: 'ver' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/militantes' && $route.query.opcion === 'ver' }">Ver militantes</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="militantes-gestionar" v-if="menuAbierto.includes('militantes') && ($store.state.user.role_id === 1 || $store.state.user.role_id === 2)">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/militantes', query: { opcion: 'gestionar' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/militantes' && $route.query.opcion === 'gestionar' }">Gestionar militantes</router-link>
+                    </a-menu-item>
+                </a-menu-item-group>
 				<a-menu-item v-if="$store.state.user.role_id !== 10 && $store.state.user.role_id !== 11 && $store.state.user.role_id !== 7 && $store.state.user.role_id !== 3">
 					<router-link to="/coordinadores">
 						<span class="icon">
@@ -122,31 +125,38 @@
 						<span class="label">Jurados-Testigos</span>
 					</router-link>
 				</a-menu-item> -->
-				<a-menu-item v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4 || $store.state.user.role_id === 5 || $store.state.user.role_id === 6 ">
-					<router-link to="/reportes">
-						<span class="icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M9 2C8.44772 2 8 2.44772 8 3C8 3.55228 8.44772 4 9 4H11C11.5523 4 12 3.55228 12 3C12 2.44772 11.5523 2 11 2H9Z" fill="#FFFFFF"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M4 5C4 3.89543 4.89543 3 6 3C6 4.65685 7.34315 6 9 6H11C12.6569 6 14 4.65685 14 3C15.1046 3 16 3.89543 16 5V16C16 17.1046 15.1046 18 14 18H6C4.89543 18 4 17.1046 4 16V5ZM7 9C6.44772 9 6 9.44772 6 10C6 10.5523 6.44772 11 7 11H7.01C7.56228 11 8.01 10.5523 8.01 10C8.01 9.44772 7.56228 9 7.01 9H7ZM10 9C9.44772 9 9 9.44772 9 10C9 10.5523 9.44772 11 10 11H13C13.5523 11 14 10.5523 14 10C14 9.44772 13.5523 9 13 9H10ZM7 13C6.44772 13 6 13.4477 6 14C6 14.5523 6.44772 15 7 15H7.01C7.56228 15 8.01 14.5523 8.01 14C8.01 13.4477 7.56228 13 7.01 13H7ZM10 13C9.44772 13 9 13.4477 9 14C9 14.5523 9.44772 15 10 15H13C13.5523 15 14 14.5523 14 14C14 13.4477 13.5523 13 13 13H10Z" fill="#FFFFFF"/>
-							</svg>
-						</span>
-						<span class="label">Reportes</span>
-					</router-link>
-				</a-menu-item>
+				<a-menu-item-group key="reportes" class="submenu-militantes" v-if="[1, 2, 4, 5, 6].includes($store.state.user.role_id)">
+                    <button slot="title" type="button" class="titulo-militantes" :aria-expanded="String(menuAbierto.includes('reportes'))" @click="menuAbierto = menuAbierto.includes('reportes') ? [] : ['reportes']">
+                        <span class="icon"><b-icon icon="clipboard-data"></b-icon></span>
+                        <span class="label">Reportes</span>
+                        <span class="flecha-militantes" aria-hidden="true">{{ menuAbierto.includes('reportes') ? '▾' : '▸' }}</span>
+                    </button>
+                    <a-menu-item key="reportes-usuarios" v-if="menuAbierto.includes('reportes') && ![5, 6].includes($store.state.user.role_id)">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/reportes', query: { opcion: 'usuarios' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/reportes' && (!['ingresados', 'repetidos'].includes($route.query.opcion) && ![5, 6].includes($store.state.user.role_id)) }">Estadísticas x usuario</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="reportes-ingresados" v-if="menuAbierto.includes('reportes')">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/reportes', query: { opcion: 'ingresados' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/reportes' && (($route.query.opcion === 'ingresados' || ([5, 6].includes($store.state.user.role_id) && $route.query.opcion !== 'repetidos'))) }">Militantes ingresados</router-link>
+                    </a-menu-item>
+                    <a-menu-item key="reportes-repetidos" v-if="menuAbierto.includes('reportes')">
+                        <router-link class="enlace-submenu-militantes" :to="{ path: '/reportes', query: { opcion: 'repetidos' } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/reportes' && ($route.query.opcion === 'repetidos') }">Militantes repetidos</router-link>
+                    </a-menu-item>
+                </a-menu-item-group>
 				<a-menu-item class="menu-item-header" v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 "  >
 					<span class="title-config">Opciones de Configuracion</span>
 				</a-menu-item>			
 				
-				<a-menu-item v-if="$store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4 || $store.state.user.role_id === 6 ">
-					<router-link to="/configuracion">
-						<span class="icon">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" fill="#FFFFFF"/>
-							</svg>
-						</span>
-						<span class="label">Personal</span>
-					</router-link>
-				</a-menu-item>
+				<a-menu-item-group key="personal" class="submenu-militantes" v-if="opcionesPersonal.length">
+                    <button slot="title" type="button" class="titulo-militantes" :aria-expanded="String(menuAbierto.includes('personal'))" @click="menuAbierto = menuAbierto.includes('personal') ? [] : ['personal']">
+                        <span class="icon"><b-icon icon="gear-fill"></b-icon></span>
+                        <span class="label">Personal</span>
+                        <span class="flecha-militantes" aria-hidden="true">{{ menuAbierto.includes('personal') ? '▾' : '▸' }}</span>
+                    </button>
+                    <template v-if="menuAbierto.includes('personal')">
+                        <a-menu-item v-for="opcion in opcionesPersonal" :key="'personal-' + opcion.clave">
+                            <router-link class="enlace-submenu-militantes" :to="{ path: '/configuracion', query: { opcion: opcion.clave } }" active-class="" exact-active-class="" :class="{ 'opcion-activa': $route.path === '/configuracion' && opcion.clave === opcionPersonalActiva }">{{ opcion.texto }}</router-link>
+                        </a-menu-item>
+                    </template>
+                </a-menu-item-group>
 				<!-- <a-menu-item v-if="$store.state.user.role_id === 1">
 
 					<router-link to="/ipreportes">
@@ -200,15 +210,79 @@
 				default: "light",
 			},
 		},
+        computed: {
+            opcionesPersonal() {
+                const usuario = this.$store.state.user;
+                const candidato = (usuario.candidato || [])[0] || {};
+                const admin = [1, 2].includes(usuario.role_id);
+                const permiteUsuarios = Number(candidato.corporacione_id) !== 5;
+                return [
+                    { clave: 'candidatos', texto: 'Candidatos', valor: 5, visible: admin && permiteUsuarios },
+                    { clave: 'coordinadores', texto: 'Coordinadores', valor: 4, visible: admin },
+                    { clave: 'lideres', texto: 'Líderes', valor: 2, visible: admin },
+                    { clave: 'usuarios', texto: 'Usuarios', valor: 1, visible: [1, 2, 6].includes(usuario.role_id) && permiteUsuarios }
+                ].filter(opcion => opcion.visible);
+            },
+            opcionPersonalActiva() {
+                const opcion = this.opcionesPersonal.find(item => item.clave === this.$route.query.opcion) || this.opcionesPersonal[0];
+                return opcion ? opcion.clave : null;
+            }
+        },
+        watch: {
+            '$route.path'(path) {
+                if (path === '/configuracion' && !this.menuAbierto.includes('personal')) this.menuAbierto.push('personal');
+                if (path === '/reportes' && !this.menuAbierto.includes('reportes')) this.menuAbierto.push('reportes');
+                if (path === '/programador' && !this.menuAbierto.includes('programador')) this.menuAbierto.push('programador');
+                if (path === '/militantes' && !this.menuAbierto.includes('militantes')) this.menuAbierto.push('militantes');
+                if (['/estadisticas', '/informes'].includes(path) && !this.menuAbierto.includes('estadisticas-informes')) this.menuAbierto.push('estadisticas-informes');
+            }
+        },
 		data() {
 			return {
-				// sidebarCollapsedModel: this.sidebarCollapsed,
+				menuAbierto: this.$route.path === '/configuracion' ? ['personal'] : this.$route.path === '/reportes' ? ['reportes'] : this.$route.path === '/programador' ? ['programador'] : this.$route.path === '/militantes' ? ['militantes'] : (['/estadisticas', '/informes'].includes(this.$route.path) ? ['estadisticas-informes'] : []),
 			}
 		},
 	})
 
 </script>
 <style>
+    .titulo-estadisticas-informes .label { white-space: normal; line-height: 1.35; flex: 1; }
+    .titulo-estadisticas-informes .icon { flex-shrink: 0; }
+
+    .ant-layout-sider.sider-primary .ant-menu-item a.enlace-submenu-militantes,
+    .ant-layout-sider.sider-primary .ant-menu-item a.enlace-submenu-militantes:visited {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        display: block;
+        color: #ffffff !important;
+        padding: 10px 12px 10px 18px !important;
+        margin: 3px 8px 3px 48px !important;
+        width: calc(100% - 56px) !important;
+        box-sizing: border-box;
+        border-left: 2px solid #a9bdcf;
+        border-radius: 0 6px 6px 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .ant-layout-sider.sider-primary .ant-menu-item a.enlace-submenu-militantes:hover,
+    .ant-layout-sider.sider-primary .ant-menu-item a.enlace-submenu-militantes.opcion-activa {
+        color: #ffffff !important;
+        background: #2f3f56 !important;
+        border-left-color: #ffffff;
+    }
+
+    .submenu-militantes > .ant-menu-item-group-title { padding: 0; }
+    .submenu-militantes .titulo-militantes { width: 100%; padding: 10px 16px; background: transparent; border: 0; cursor: pointer; text-align: left; min-height: 52px; }
+    .submenu-militantes .titulo-militantes:hover { background: #2f3f56; }
+    .submenu-militantes .titulo-militantes:focus-visible { outline: 2px solid white; outline-offset: -2px; }
+    .submenu-militantes .flecha-militantes { margin-left: auto; }
+    .layout-dashboard .sider-primary .submenu-militantes .ant-menu-item a { display: block; padding: 10px 12px 10px 42px; color: #fff !important; }
+
+    .submenu-militantes .titulo-militantes { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-weight: 600; }
+    .submenu-militantes .titulo-militantes .icon { display: inline-flex; background: transparent; box-shadow: none; }
+    .submenu-militantes .ant-menu-item a { font-size: 13px; border-radius: 6px; }
+    .submenu-militantes .opcion-activa { background: #2F3F56; color: #fff; font-weight: 700; }
+
 	/* Estilos básicos */
 	a {
 		text-decoration: none !important;	

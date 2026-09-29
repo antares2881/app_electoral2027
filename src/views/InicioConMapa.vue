@@ -4,7 +4,11 @@
 		<Loading />
 	</div>
 	<div v-else>
-        <div class="row">
+        <template v-if="isCorporacionMunicipal">
+            <p v-if="errorMunicipio" class="alert alert-danger">{{ errorMunicipio }}</p>
+            <General v-else :departamentoId="candidato.departamento_id" :municipioId="Number(candidato.municipio_id)" :titulo="nombreMunicipio" :data="datosMunicipio" />
+        </template>
+        <div v-else class="row">
             <div class="col-8">
                 <Colombia v-if="isCorporacionSenado" />
 				<Index v-else />
@@ -56,17 +60,22 @@
 	import Loading from '../components/Loader/Loading.vue';
     import Colombia from '../components/Mapas/Colombia.vue';
 	import Index from '@/components/Departamentos/Index.vue';
+	import General from '@/components/Municipios/General.vue';
 
 	export default ({
 		components: {
 			CardBarChart,
 			Loading,
 			Colombia,
-			Index
+			Index,
+			General
 		},
 		data() {
 			return {				
                 candidato: {},
+                datosMunicipio: [],
+                nombreMunicipio: '',
+                errorMunicipio: null,
 				coordinadores: [],
 				divipoles: [],
 				fecha_cumple: this.formatingDate(new Date()),
@@ -89,6 +98,11 @@
 				try {
 					// Ejecutar llamadas en paralelo para mejorar rendimiento
 					await this.getCandidato();
+                    if (this.isCorporacionMunicipal) {
+                        await this.getVotantesMunicipioCandidato();
+                        this.render = true;
+                        return;
+                    }
 					
 					// Estas llamadas pueden ejecutarse en paralelo
 					await Promise.all([
@@ -114,6 +128,32 @@
                     }
                 })
                 this.candidato = res.data.candidato;
+            },
+            async getVotantesMunicipioCandidato() {
+                this.datosMunicipio = [];
+                this.errorMunicipio = null;
+                const { departamento_id, municipio_id } = this.candidato;
+                if (!departamento_id || !municipio_id) {
+                    this.errorMunicipio = 'El candidato no tiene departamento y municipio configurados.';
+                    return;
+                }
+                try {
+                    const config = {
+                        headers: { "Authorization": `Bearer ${this.$store.state.user.token}` }
+                    };
+                    const [puestos, municipios] = await Promise.all([
+                        axios.get(`/api/votantesxmcpio/${departamento_id}/${municipio_id}`, config),
+                        axios.get(`/api/votantesxmunicipio/${departamento_id}`, config)
+                    ]);
+                    if (!Array.isArray(puestos.data.votantes_por_municipio)) throw new Error('Respuesta inválida');
+                    const municipio = (municipios.data.votantes_por_municipio || []).find(item =>
+                        Number(item.municipio_id ?? item.id) === Number(municipio_id)
+                    );
+                    this.nombreMunicipio = municipio ? municipio.municipio : '';
+                    this.datosMunicipio = puestos.data.votantes_por_municipio;
+                } catch (error) {
+                    this.errorMunicipio = 'No fue posible cargar la información del municipio del candidato.';
+                }
             },
 			async getDivipoles(){
 
@@ -290,6 +330,9 @@
 			}
 		},
 		computed: {
+            isCorporacionMunicipal() {
+                return [4, 5].includes(Number(this.candidato.corporacione_id));
+            },
 			// Validar si el candidato pertenece a la corporación 3 (Senado)
 			isCorporacionSenado() {
 				if (this.candidato && this.candidato.corporacione_id === 3) {

@@ -4,10 +4,10 @@
     </div>
     <div v-else>
 
-        <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{padding: 0,}">
+        <a-card :bordered="false" class="header-solid h-full personal-admin" :bodyStyle="{padding: 0,}">
             <template #title>
                 <GestionCandidatos ref="gestionCandidato" />
-                <div class="d-flex justify-content-between my-2">
+                <div class="personal-cabecera">
                     <div>
                         <h3>Gestión de candidatos</h3>
                     </div>
@@ -104,3 +104,4 @@
         width: 1.5em;
     }
 </style>
+<style scoped src="../../assets/styles/personal-admin.css"></style>

@@ -1,8 +1,9 @@
  <template>
-     <div>        
+     <div class="vista-coordinadores">        
         <GestionLideres ref="gestion"></GestionLideres>
-        <div class="row align-items-end" v-if="($store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4) && !lideresSublideres">        
-            <div class="col-md-5 col-12">
+        <div class="busqueda-coordinadores" v-if="($store.state.user.role_id === 1 || $store.state.user.role_id === 2 || $store.state.user.role_id === 4) && !lideresSublideres">        
+            <div class="campo-coordinador">
+                <label for="coordinador">Coordinador</label>
                 <model-select
                     id="coordinador"
                     :options="coordinadores"
@@ -10,8 +11,8 @@
                     placeholder="Mostrar todo"
                 ></model-select>
             </div>
-            <div class="col-md-2 col-12">
-                <button class="btn btn-dark btn-block" @click="buscarCoordinador" style="height: 38px; padding: 0;">Buscar</button>
+            <div class="accion-coordinador">
+                <button class="btn btn-verde btn-block" @click="buscarCoordinador">Buscar</button>
             </div>
         </div>
         <a-row type="flex" class="mt-30" v-if="loading">
@@ -25,25 +26,25 @@
         </div>
         <a-card :bordered="false" class="header-solid h-full mt-10" :bodyStyle="{padding: 0,}" v-if="infoCoordinador.length > 0">
             <template #title>
-                <div class="d-flex justify-content-between">
+                <div class="cabecera-coordinador">
                     <div>
                         <h6 class="my-3" v-if="coordinadore_id > 0">{{ coordinador }}</h6>
                         <p class="meta-badge">Meta: <span class="meta-value">{{ formatearNumero(infoCoordinador[0].meta_votacion) }}</span></p>
                     </div>
                     <div>
-                        <button class="btn btn-danger mr-2" @click="newLider"><b-icon icon="file-plus"></b-icon> Nuevo lider</button>
+                        <button class="btn btn-verde mr-2" @click="newLider"><b-icon icon="file-plus"></b-icon> Nuevo lider</button>
                         <a :href="'https://apisenado.convexosit.co/excel-coordinadores/' + $store.state.user.token_id + '/' + coordinadore_id  + '/-1/-1'" class="btn btn-success" target="_blank" v-if="($store.state.user.role_id === 1 || $store.state.user.role_id === 2)"> <b-icon icon="file-earmark-excel"></b-icon> Generar excel</a>
                     </div>
                 </div>
                 <p class="info-coordinadores"><strong># Lideres:</strong>
-                    <b-badge variant="danger" @click="irLideres" role="button">{{ infoCoordinador[0].total_lideres }}</b-badge>
+                    <b-badge variant="success" @click="irLideres" role="button">{{ infoCoordinador[0].total_lideres }}</b-badge>
                 </p>
                 <p class="info-coordinadores"><strong># Militantes:</strong> {{ formatearNumero(totalMilitantes) }}</p>
                 
                 <!-- Switch de agrupación -->
                 <div class="text-center my-4">
                     <div class="agrupacion-switch">
-                        <label class="switch-label" :class="{ active: agrupacion === 1 }">
+                        <label v-if="agrupacionesPermitidas.includes(1)" class="switch-label" :class="{ active: agrupacion === 1 }">
                             <input 
                                 type="radio" 
                                 :value="1" 
@@ -53,7 +54,7 @@
                             >
                             <span class="switch-text">Departamento</span>
                         </label>
-                        <label class="switch-label" :class="{ active: agrupacion === 2 }">
+                        <label v-if="agrupacionesPermitidas.includes(2)" class="switch-label" :class="{ active: agrupacion === 2 }">
                             <input 
                                 type="radio" 
                                 :value="2" 
@@ -164,9 +165,9 @@
 			</div>
             <div class="municipios-tabla mt-4" v-if="agrupacion === 3">
                 <h6 class="municipios-tabla__titulo">Militantes por puesto de votación</h6>
-                <label for="municipio-puestos">Municipio</label>
-                <model-select id="municipio-puestos" :options="opcionesMunicipios" v-model="municipioSeleccionado" placeholder="Seleccione un municipio" />
-                <p class="text-muted mt-3" v-if="!municipioSeleccionado">Seleccione un municipio para consultar sus puestos de votación.</p>
+                <label v-if="!soloPuestos" for="municipio-puestos">Municipio</label>
+                <model-select v-if="!soloPuestos" id="municipio-puestos" :options="opcionesMunicipios" v-model="municipioSeleccionado" placeholder="Seleccione un municipio" />
+                <p class="text-muted mt-3" v-if="!municipioSeleccionado">{{ soloPuestos ? 'El candidato no tiene un municipio configurado.' : 'Seleccione un municipio para consultar sus puestos de votación.' }}</p>
                 <p class="text-muted mt-3" v-else-if="!puestosOrdenados.length">No hay militantes registrados en este municipio para la selección actual.</p>
                 <div v-else class="table-responsive mt-3" tabindex="0" aria-label="Puestos de votación">
                     <table class="table table-hover align-middle mb-0">
@@ -231,6 +232,7 @@
             }
         },
         mounted(){
+            this.agrupacion = this.agrupacionesPermitidas[0];
             const candidato = (this.$store.state.user.candidato || [])[0];
             if (candidato && Number(candidato.departamento_id) > 0 && Number(candidato.municipio_id) > 0) {
                 this.municipioSeleccionado = `${Number(candidato.departamento_id)}-${Number(candidato.municipio_id)}`;
@@ -247,6 +249,14 @@
                 return Number(valor || 0).toLocaleString('es-CO');
             },
             buscarCoordinador(){
+                if (!this.agrupacionesPermitidas.includes(this.agrupacion)) {
+                    this.agrupacion = this.agrupacionesPermitidas[0];
+                }
+                if (this.soloPuestos) {
+                    const candidato = this.candidatoConfigurado;
+                    this.municipioSeleccionado = Number(candidato.departamento_id) > 0 && Number(candidato.municipio_id) > 0
+                        ? `${Number(candidato.departamento_id)}-${Number(candidato.municipio_id)}` : '';
+                }
 
                 if(this.coordinadore_id === -1 || this.coordinadore_id === null || this.coordinadore_id === '' || this.coordinadore_id === undefined){
                     this.coordinadore_id = -1;
@@ -332,6 +342,19 @@
 			},
         },
         computed: {
+            candidatoConfigurado() {
+                const candidato = this.$store.state.user.candidato;
+                return (Array.isArray(candidato) ? candidato[0] : candidato) || {};
+            },
+            soloPuestos() {
+                return [4, 5, 8].includes(Number(this.candidatoConfigurado.corporacione_id));
+            },
+            agrupacionesPermitidas() {
+                const corporacion = Number(this.candidatoConfigurado.corporacione_id);
+                if ([4, 5, 8].includes(corporacion)) return [3];
+                if ([1, 6, 7].includes(corporacion)) return [2, 3];
+                return [1, 2, 3];
+            },
             opcionesMunicipios() {
                 return this.municipiosPuestos.map(m => ({
                     value: `${Number(m.departamento_id)}-${Number(m.id)}`,
@@ -395,7 +418,7 @@
     .municipios-tabla .table-responsive { max-height: 420px; overflow: auto; }
     .municipios-tabla thead th { position: sticky; top: 0; z-index: 1; }
     .municipios-tabla tfoot th { position: sticky; bottom: 0; z-index: 1; }
-    .switch-label:focus-within { outline: 2px solid #C60000; outline-offset: 2px; }
+    .switch-label:focus-within { outline: 2px solid #198754; outline-offset: 2px; }
 
     .info-coordinadores{
         color: #000 !important;
@@ -404,11 +427,11 @@
         padding: 0.5rem;
         background-color: #f8f9fa;
         border-radius: 8px;
-        border-left: 4px solid #C60000;
+        border-left: 4px solid #198754;
     }
     
     h6 {
-        color: #C60000;
+        color: #198754;
         font-weight: 700;
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
@@ -444,14 +467,14 @@
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         padding: 0.75rem 1.5rem;
         border-radius: 12px;
-        border-left: 4px solid #C60000;
+        border-left: 4px solid #198754;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         display: inline-block;
         margin: 0.5rem 0;
     }
     
     .meta-value {
-        color: #C60000;
+        color: #198754;
         font-size: 1.4rem;
         font-weight: 700;
         margin-left: 0.5rem;
@@ -485,9 +508,9 @@
     }
     
     .switch-label.active {
-        background: linear-gradient(135deg, #C60000 0%, #8B0000 100%);
+        background: linear-gradient(135deg, #198754 0%, #146c43 100%);
         color: white;
-        box-shadow: 0 4px 12px rgba(198, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
     }
     
     .switch-input {
@@ -563,7 +586,7 @@
 	}
 
 	.porcentaje-barra .progress-bar {
-		background: linear-gradient(90deg, #C60000 0%, #e33445 100%);
+		background: linear-gradient(90deg, #198754 0%, #28a76c 100%);
 		border-radius: 999px;
 	}
 
@@ -572,4 +595,37 @@
 		text-align: right;
 		color: #343a40;
 	}
+
+    .busqueda-coordinadores {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: end;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        background: #f8faf9;
+        border: 1px solid #e1e8e4;
+        border-radius: 12px;
+    }
+    .campo-coordinador { min-width: 0; }
+    .campo-coordinador label { display: block; margin-bottom: 0.4rem; color: #475569; font-size: 0.875rem; font-weight: 600; }
+    .vista-coordinadores ::v-deep .ui.selection.dropdown { width: 100%; min-width: 0; min-height: 44px; border: 1px solid #d8e0dc; border-radius: 8px; font-size: 0.95rem; box-shadow: none; }
+    .vista-coordinadores ::v-deep .ui.selection.dropdown:focus-within { border-color: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,0.12); }
+    .vista-coordinadores .btn { min-height: 44px; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; }
+    .btn-verde { background: #198754; border: 1px solid #198754; color: white; }
+    .btn-verde:hover { background: #146c43; border-color: #146c43; color: white; }
+    .btn-verde:focus-visible { outline: 3px solid rgba(25,135,84,0.35); outline-offset: 2px; }
+    .cabecera-coordinador { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; white-space: normal; }
+    .cabecera-coordinador > div:last-child { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .municipios-tabla__titulo { color: #198754; font-weight: 700; }
+    .municipios-tabla .table { border: 1px solid #e1e8e4; font-size: 0.9rem; }
+    .municipios-tabla .table th, .municipios-tabla .table td { padding: 0.7rem 0.875rem; border-color: #e1e8e4; }
+    .municipios-tabla thead th, .municipios-tabla tfoot th { background: #eef6f1; color: #166534; }
+    .municipios-tabla tbody tr:nth-child(even) { background: #f8faf9; }
+    .agrupacion-switch { flex-wrap: wrap; max-width: 100%; }
+    .switch-label:focus-within { outline: 2px solid #198754; outline-offset: 2px; }
+    @media (max-width: 767px) {
+        .busqueda-coordinadores { grid-template-columns: minmax(0, 1fr); padding: 1rem; }
+        .accion-coordinador .btn { width: 100%; }
+    }
 </style>
