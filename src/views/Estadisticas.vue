@@ -14,6 +14,7 @@
         <EstadisticasLocales2022 v-if="estadistica_id === 2" />
         <EstadisticasLocales2023 v-if="estadistica_id === 3" />
         <EstadisticasCongreso2026 v-if="estadistica_id === 4" />
+        <EstadisticasSegundaVuelta2026 v-if="estadistica_id === 5" />
     </a-card>
 </template>
 <script>
@@ -22,11 +23,13 @@
     import EstadisticasLocales2022 from './Estadisticas2022.vue';
     import EstadisticasLocales2023 from './Estadisticas2023.vue';
 
+    import EstadisticasSegundaVuelta2026 from './EstadisticasSegundaVuelta2026.vue';
     import EstadisticasCongreso2026 from './Estadisticas2026.vue';
 
     export default {
         components: {
             EstadisticasCongreso2026,
+            EstadisticasSegundaVuelta2026,
 			EstadisticasLocales2019,
             EstadisticasLocales2022,
 			EstadisticasLocales2023,
@@ -39,6 +42,7 @@
                     {text: 'Estadísticas Congreso 2022', value: 2},
                     {text: 'Estadísticas locales 2023', value: 3},
                     {text: 'Estadísticas Congreso 2026', value: 4},
+                    {text: 'Estadísticas segunda vuelta 2026', value: 5},
                 ]
             }
         },
